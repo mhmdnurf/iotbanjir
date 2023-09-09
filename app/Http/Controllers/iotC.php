@@ -25,7 +25,7 @@ class iotC extends Controller
     {
 
         
-        // try {
+        try {
 
 
             $token_sensor = $request->header('token-sensor');
@@ -152,9 +152,9 @@ class iotC extends Controller
 
             return $pesan;
 
-        // } catch (\Throwable $th) {
-        //     return abort(500, 'Kunci tidak valid');
-        // }
+        } catch (\Throwable $th) {
+            return abort(500, 'Kunci tidak valid');
+        }
         
 
     }
