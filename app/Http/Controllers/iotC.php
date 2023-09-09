@@ -103,6 +103,15 @@ class iotC extends Controller
             $username = $request->username;
             $password = $request->password;
 
+            $jumlahpassword = strlen($password);
+            if($jumlahpassword<8){
+                $pesan = [
+                    "pesan" => "Minimal password 8 karakter",
+                    "login" => 0,
+                ];
+                return $pesan;
+            }
+
             $proses = User::where("username", $username);
 
             $pesan = [
@@ -150,6 +159,15 @@ class iotC extends Controller
             ]);
         
             if ($validator->fails()) {
+                $jumlahpassword = strlen($request->password);
+                if($jumlahpassword<8){
+                    $pesan = [
+                        "pesan" => "Minimal password 8 karakter",
+                        "daftar" => 0,
+                    ];
+                    return $pesan;
+                }
+
                 $pesan = [
                     "pesan" => "Silahkan memasukan identitas dengan benar, pastikan email dan username belum terdaftar",
                     "daftar" => 0,

@@ -147,6 +147,11 @@ return [
         ],
     ],
 
+    'password' => [
+        'required' => 'Inputan tidak boleh kosong',
+        'min' => 'Password minimal harus 8 karakter',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes
