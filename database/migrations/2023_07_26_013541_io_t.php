@@ -36,6 +36,14 @@ class IoT extends Migration
             "ketinggian" => 0,
         ]);
 
+        Schema::create('email', function (Blueprint $table) {
+            $table->bigIncrements('idemail');
+            $table->String("tinggi");
+            $table->String("ket");
+            $table->date("tanggal");
+            $table->timestamps();
+        });
+
         Schema::create('pengaturan', function (Blueprint $table) {
             $table->bigIncrements('idpengaturan');
             $table->integer("ketinggianMax");

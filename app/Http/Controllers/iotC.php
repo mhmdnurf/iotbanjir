@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\dataM;
 use App\Models\logsM;
+use App\Models\emailM;
 use App\Models\pengaturanM;
 use App\Models\alatM;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SampleMail; // Ganti dengan nama kelas mail Anda
 use Illuminate\Support\Facades\Validator;
 use Hash;
 
@@ -20,7 +23,11 @@ class iotC extends Controller
      */
     public function post(Request $request)
     {
-        try {
+
+        
+        // try {
+
+
             $token_sensor = $request->header('token-sensor');
             
             $cek = alatM::where('token_sensor', $token_sensor)->count();
@@ -44,14 +51,70 @@ class iotC extends Controller
             $led = 1;
             $buzzer = 0;
 
+
             if($tinggi >= $bahaya) {
                 $ket = "tinggi";
                 $led = 3;
                 $buzzer = 1;
+
+                $cekEmail = emailM::orderBy("idemail", "desc");
+
+                if($cekEmail->count() == 0 || $cekEmail->first()->ket == "normal") {
+                    emailM::create([
+                        "tinggi" => $tinggi."Cm",
+                        "ket" => $ket,
+                        "tanggal" => date("Y-m-d"),
+                    ]);
+
+                    $user = User::select("email")->get();
+                    $recipients = $user->pluck('email')->toArray();
+                    $mailData = [
+                        'title' => 'Ketinggian Air (BAHAYA)',
+                        'content' => 'Ketinggian :'. $tinggi. "Cm",
+                    ];
+                    Mail::to($recipients)->send(new SampleMail($mailData));
+                }
+                
+                
+
+
+
             }else if($tinggi > $waspada) {
                 $ket = "sedang";
                 $led = 2;
                 $buzzer = 2;
+
+
+                $cekEmail = emailM::orderBy("idemail", "desc");
+
+                if($cekEmail->count() == 0 || $cekEmail->first()->ket == "normal") {
+                    emailM::create([
+                        "tinggi" => $tinggi."Cm",
+                        "ket" => $ket,
+                        "tanggal" => date("Y-m-d"),
+                    ]);
+                    $user = User::select("email")->get();
+                    $recipients = $user->pluck('email')->toArray();
+                    $mailData = [
+                        'title' => 'Ketinggian Air (WASPADA)',
+                        'content' => 'Ketinggian :'. $tinggi. "Cm",
+                    ];
+                    
+                    Mail::to($recipients)->send(new SampleMail($mailData));
+                }
+
+            }else {
+                $cekEmail = emailM::orderBy("idemail", "desc");
+                if($cekEmail->count() > 0) {
+                    $cekEmail = $cekEmail->first();
+                    if($cekEmail->ket == "tinggi" || $cekEmail->ket == "sedang") {
+                        emailM::create([
+                            "tinggi" => $tinggi."Cm",
+                            "ket" => "normal",
+                            "tanggal" => date("Y-m-d"),
+                        ]);
+                    }
+                }
             }
             
             $update = dataM::first();
@@ -89,9 +152,9 @@ class iotC extends Controller
 
             return $pesan;
 
-        } catch (\Throwable $th) {
-            return abort(500, 'Kunci tidak valid');
-        }
+        // } catch (\Throwable $th) {
+        //     return abort(500, 'Kunci tidak valid');
+        // }
         
 
     }
